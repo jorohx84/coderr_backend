@@ -1,5 +1,6 @@
 from django.db import models
 from auth_app.models import CustomUser
+from django.utils import timezone
 
 class Profile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="profile")
@@ -14,6 +15,12 @@ class Profile(models.Model):
     type = models.CharField()
     email = models.EmailField(max_length=50, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            self.uploaded_at = timezone.now()
+            super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Profile of {self.user.username}"

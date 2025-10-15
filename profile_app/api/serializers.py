@@ -16,7 +16,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     type = serializers.CharField(source='user.type', read_only=True)
     # file = serializers.ImageField(required=False, allow_null=True)
     file = serializers.CharField()
-    
+
     class Meta:
         model = Profile
         fields = [
@@ -78,6 +78,7 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
     type = serializers.CharField(source='user.type', read_only=True)
     # file = serializers.ImageField(required=False, allow_null=True)
     file = serializers.CharField()
+  
 
     class Meta:
         model = Profile
@@ -87,7 +88,7 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
             'first_name', 
             'last_name', 
             'file',
-            'tel', 
+            'uploaded_at',
             'type',
         ]
 

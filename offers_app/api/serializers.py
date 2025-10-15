@@ -36,3 +36,5 @@ class OfferSerializer(serializers.ModelSerializer):
             detail.features.set(features)
 
         return offer
+
+
