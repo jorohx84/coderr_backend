@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import AbstractUser
 from rest_framework import serializers
 from ..models import CustomUser
+from profile_app.models import Profile
 
 class RegistrationSerializer(serializers.ModelSerializer):
     """
@@ -45,6 +46,20 @@ class RegistrationSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
 
+        Profile.objects.create(
+            user=user,
+            username=user.username,
+            first_name="",
+            last_name="",
+            file="",
+            location="",     
+            tel="",
+            description="",
+            working_hours="",
+            type=user.type,
+            email=user.email,
+            
+        )
         return user
     
 
