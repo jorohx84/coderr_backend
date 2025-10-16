@@ -6,6 +6,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework import filters
+from rest_framework import status
+from rest_framework.response import Response
 from .serializers import OfferSerializer, OfferListSerializer, SinglerOfferSerializer, OfferDetailsSerializer
 from ..models import Offer, OfferDetails
 from .permissions import IsBusinessUser, IsCreator
@@ -53,6 +55,20 @@ class OfferViewSet(ModelViewSet):
 
 
 
-class OfferDetailView(generics.RetrieveAPIView):
+class OfferDetailsViewSet(ModelViewSet):
     queryset = OfferDetails.objects.all()
     serializer_class = OfferDetailsSerializer
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        print("OfferDetails PATCH called")
+        instance = self.get_object()
+        partial = kwargs.pop("partial", False)
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        # Hole das zugehörige Offer und returne es
+        offer = instance.offer
+        offer_serializer = OfferSerializer(offer, context={"request": request})
+        return Response(offer_serializer.data, status=status.HTTP_200_OK)
