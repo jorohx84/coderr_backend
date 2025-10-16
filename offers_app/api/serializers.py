@@ -20,7 +20,17 @@ class OfferDetailsSerializer(serializers.ModelSerializer):
             "id", "title", "revisions", "delivery_time_in_days", "price",
             "features", "offer_type"
         ]
+  
+    def update(self, instance, validated_data):
+        features = validated_data.pop('features', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
 
+        if features is not None:
+            instance.features.set(features)
+
+        return instance
 
 class OfferSerializer(serializers.ModelSerializer):
     details = OfferDetailsSerializer(many=True)
@@ -43,6 +53,26 @@ class OfferSerializer(serializers.ModelSerializer):
 
         return offer
     
+    def update(self, instance, validated_data):
+        details_data = validated_data.pop('details', [])
+        instance = super().update(instance, validated_data)
+
+        existing_details = {d.id: d for d in instance.details.all()}
+
+        for detail_data in details_data:
+            detail_id = detail_data.get('id')
+            if not detail_id:
+                continue
+            detail_instance = existing_details.get(detail_id)
+            if detail_instance:
+                serializer = OfferDetailsSerializer(detail_instance, data=detail_data, partial=True)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+
+        return instance
+   
+        
+
 
     # def update(self, instance, validated_data):
     #     details_data = validated_data.pop('details', None)
@@ -80,48 +110,48 @@ class OfferSerializer(serializers.ModelSerializer):
     #                 detail.delete()
 
     #         return instance
-    def update(self, instance, validated_data):
-        details_data = validated_data.pop('details', [])
-        offer = super().update(instance, validated_data)
+    # def update(self, instance, validated_data):
+    #     details_data = validated_data.pop('details', [])
+    #     offer = super().update(instance, validated_data)
 
 
-        existing_details = {detail.id: detail for detail in offer.details.all()}
+    #     existing_details = {detail.id: detail for detail in offer.details.all()}
 
-        for detail_data in details_data:
-            detail_id = detail_data.get("id")
-            if not detail_id:
-                continue  
+    #     for detail_data in details_data:
+    #         detail_id = detail_data.get("id")
+    #         if not detail_id:
+    #             continue  
 
-            detail_instance = existing_details.get(detail_id)
-            if not detail_instance:
-                continue  
-
-       
-            features = detail_data.pop("features", None)
+    #         detail_instance = existing_details.get(detail_id)
+    #         if not detail_instance:
+    #             continue  
 
        
-            for field in ["price", "revisions", "delivery_time_in_days"]:
-                if field in detail_data:
-                    raw_value = detail_data[field]
-                    if raw_value != "" and raw_value is not None:
-                        try:
-                            if field == "price":
-                                detail_data[field] = float(raw_value)
-                            else:
-                                detail_data[field] = int(raw_value)
-                        except (ValueError, TypeError):
-                            raise serializers.ValidationError(
-                            {field: f"Ungültiger Wert für '{field}': {raw_value}"}
-                        )
+    #         features = detail_data.pop("features", None)
+
+       
+    #         for field in ["price", "revisions", "delivery_time_in_days"]:
+    #             if field in detail_data:
+    #                 raw_value = detail_data[field]
+    #                 if raw_value != "" and raw_value is not None:
+    #                     try:
+    #                         if field == "price":
+    #                             detail_data[field] = float(raw_value)
+    #                         else:
+    #                             detail_data[field] = int(raw_value)
+    #                     except (ValueError, TypeError):
+    #                         raise serializers.ValidationError(
+    #                         {field: f"Ungültiger Wert für '{field}': {raw_value}"}
+    #                     )
 
     
-            for attr, value in detail_data.items():
-                setattr(detail_instance, attr, value)
+    #         for attr, value in detail_data.items():
+    #             setattr(detail_instance, attr, value)
 
-            detail_instance.save()
+    #         detail_instance.save()
 
-            if features is not None:
-                detail_instance.features.set(features)
+    #         if features is not None:
+    #             detail_instance.features.set(features)
 
         return offer
 
