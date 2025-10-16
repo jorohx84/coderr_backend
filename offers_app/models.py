@@ -1,11 +1,20 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 class Offer(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='offers')
     title = models.CharField(max_length=255)
     image = models.ImageField(upload_to='offers/', null=True, blank=True)
     description = models.TextField(default="")
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            self.updated_at = timezone.now()
+        super().save(*args, **kwargs)
+
 
     def __str__(self):
         return self.title
@@ -37,4 +46,6 @@ class OfferDetails(models.Model):
 
     def __str__(self):
         return f"{self.offer.title} - {self.title} ({self.offer_type})"
+
+
 
