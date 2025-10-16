@@ -15,12 +15,7 @@ class Profile(models.Model):
     type = models.CharField()
     email = models.EmailField(max_length=50, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-
-    def save(self, *args, **kwargs):
-        if self.pk:
-            self.uploaded_at = timezone.now()
-            super().save(*args, **kwargs)
+ 
 
     def __str__(self):
         return f"Profile of {self.user.username}"

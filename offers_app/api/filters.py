@@ -12,9 +12,7 @@ class OfferFilter(django_filters.FilterSet):
         fields = ['creator_id']
 
     def filter_min_price(self, queryset, name, value):
-        # Filtert alle Offers, bei denen der minimale Preis >= value ist
         return queryset.annotate(min_price=Min('details__price')).filter(min_price__gte=value)
 
     def filter_max_delivery_time(self, queryset, name, value):
-        # Filtert alle Offers, bei denen die minimale Lieferzeit <= value ist
         return queryset.annotate(min_delivery_time=Min('details__delivery_time_in_days')).filter(min_delivery_time__lte=value)

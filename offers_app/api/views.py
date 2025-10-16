@@ -4,10 +4,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.views import APIView
 from rest_framework import filters
-from .serializers import OfferSerializer, OfferListSerializer
-from ..models import Offer
-from .permissions import IsBusinessUser
+from .serializers import OfferSerializer, OfferListSerializer, SinglerOfferSerializer, OfferDetailsSerializer
+from ..models import Offer, OfferDetails
+from .permissions import IsBusinessUser, IsCreator
 from .filters import OfferFilter
 
 class OfferPagination(PageNumberPagination):
@@ -19,7 +20,7 @@ class OfferPagination(PageNumberPagination):
 class OfferViewSet(ModelViewSet):
     queryset = Offer.objects.all()
     pagination_class = OfferPagination
-    permission_classes = [IsAuthenticated, IsBusinessUser]
+    # permission_classes = [IsAuthenticated, IsBusinessUser, IsCreator]
 
     filter_backends = [
         DjangoFilterBackend,
@@ -38,12 +39,20 @@ class OfferViewSet(ModelViewSet):
         )
 
     def get_serializer_class(self):
-        if self.action in ['list', 'retrieve']:
+        if self.action == 'list':
             return OfferListSerializer
+        elif self.action == 'retrieve':
+            return SinglerOfferSerializer
         return OfferSerializer
     
     def perform_create(self, serializer):
         serializer.save()
 
+ 
 
 
+
+
+class OfferDetailView(generics.RetrieveAPIView):
+    queryset = OfferDetails.objects.all()
+    serializer_class = OfferDetailsSerializer
