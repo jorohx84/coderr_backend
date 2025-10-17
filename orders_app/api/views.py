@@ -5,9 +5,11 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from .serializers import OrderSerializer
 from orders_app.models import Order
-from offers_app.models import OfferDetails
+from offers_app.models import OfferDetail, Feature
 from .permissions import OrderPermission
 from auth_app.models import CustomUser
+
+
 class OrderCreateView(APIView):
     permission_classes = [IsAuthenticated, OrderPermission]
 
@@ -21,7 +23,7 @@ class OrderCreateView(APIView):
         if not offer_detail_id:
             return Response({"error":"offer_detail_id is required"}, status=status.HTTP_400_BAD_REQUEST)
         
-        offer_detail = get_object_or_404(OfferDetails.objects.select_related('offer'), id=offer_detail_id)
+        offer_detail = get_object_or_404(OfferDetail.objects.select_related('offer'), id=offer_detail_id)
           
         order = Order.objects.create(
             customer_user=request.user,
@@ -34,7 +36,16 @@ class OrderCreateView(APIView):
             offer_detail=offer_detail,
         )
 
-        order.features.set(offer_detail.features.all())
+        # ✅ Wichtig: JSON-Features in echte Feature-Modelle umwandeln
+        feature_names = offer_detail.features  # z.B. ["Logo Design", "Flyer"]
+        feature_objects = []
+
+        for name in feature_names:
+            feature_obj, _ = Feature.objects.get_or_create(name=name)
+            feature_objects.append(feature_obj)
+
+    # ✅ ManyToMany-Feld korrekt befüllen
+        order.features.set(feature_objects)
 
         serializer = OrderSerializer(order)
 
