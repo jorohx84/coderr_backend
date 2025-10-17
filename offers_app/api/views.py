@@ -58,7 +58,7 @@ class OfferViewSet(ModelViewSet):
 class OfferDetailsViewSet(ModelViewSet):
     queryset = OfferDetails.objects.all()
     serializer_class = OfferDetailsSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
         print("OfferDetails PATCH called")

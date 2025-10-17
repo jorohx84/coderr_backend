@@ -24,7 +24,7 @@ class OfferDetailsSerializer(serializers.ModelSerializer):
   
 
 class OfferSerializer(serializers.ModelSerializer):
-    details = OfferDetailsSerializer(many=True, read_only=True)
+    details = OfferDetailsSerializer(many=True)
 
     class Meta:
         model = Offer

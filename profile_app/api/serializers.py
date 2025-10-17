@@ -88,7 +88,6 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
             'first_name', 
             'last_name', 
             'file',
-            'uploaded_at',
             'type',
         ]
 
