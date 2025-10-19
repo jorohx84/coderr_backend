@@ -1,15 +1,3 @@
-
-# from django.urls import path
-# from rest_framework.routers import DefaultRouter
-# from .views import OfferViewSet
-
-# router = DefaultRouter()
-# router.register(r'offers', OfferViewSet)
-
-
-
-# urlpatterns = router.urls
-
 from django.urls import path
 from .views import OfferListCreateAPIView, SingleDetailView, OfferRetrieveUpdateDestroyAPIView
 

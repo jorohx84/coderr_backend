@@ -1,13 +1,12 @@
-from rest_framework import generics, status
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, generics
+from rest_framework import filters, generics, status
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from ..models import Offer, OfferDetail
-from .serializers import OfferSerializer, OfferListSerializer, OfferDetailSerializer, SingleOfferSerializer, OfferUpdateSerializer
-from .permissions import OfferPermission
 from .filters import OfferFilter
+from .permissions import OfferPermission
+from .serializers import (OfferDetailSerializer, OfferListSerializer, OfferSerializer, OfferUpdateSerializer, SingleOfferSerializer,)
 
 class OfferPagination(PageNumberPagination):
     """
@@ -84,7 +83,7 @@ class SingleDetailView(generics.RetrieveAPIView):
     Features:
     - Requires authentication
     - Uses OfferDetailSerializer for serialization
-    
+
     """
     queryset = OfferDetail.objects.all()
     serializer_class = OfferDetailSerializer

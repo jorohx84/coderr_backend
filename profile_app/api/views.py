@@ -1,11 +1,12 @@
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
-from .serializers import ProfileSerializer, BusinessProfileSerializer, CustomerProfileSerializer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from ..models import Profile
 from .permissions import IsProfileOwner
+from .serializers import BusinessProfileSerializer, CustomerProfileSerializer, ProfileSerializer
+
      
 
 class BusinessAndCustomerProfileView(generics.ListAPIView):

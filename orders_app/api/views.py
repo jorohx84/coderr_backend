@@ -1,13 +1,13 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, status
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from .serializers import OrderSerializer
-from orders_app.models import Order
-from offers_app.models import OfferDetail, Feature
-from .permissions import OrderPermission
 from auth_app.models import CustomUser
+from offers_app.models import Feature, OfferDetail
+from orders_app.models import Order
+from .permissions import OrderPermission
+from .serializers import OrderSerializer
 
 
 class OrderCreateView(APIView):
@@ -143,7 +143,7 @@ class CompletedOrderCountView(APIView):
     - Validates that the business user exists and has type 'business'.
     - Returns the count of orders assigned to the business user with status 'completed'.
     - If the business user does not exist or is not of type 'business', returns 404 error.
-    
+
     """
     permission_classes = [IsAuthenticated]
 

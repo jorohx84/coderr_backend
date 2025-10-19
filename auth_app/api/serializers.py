@@ -1,8 +1,7 @@
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import AbstractUser
 from rest_framework import serializers
-from ..models import CustomUser
 from profile_app.models import Profile
+from ..models import CustomUser
 
 class RegistrationSerializer(serializers.ModelSerializer):
     """

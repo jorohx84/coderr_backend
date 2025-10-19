@@ -1,11 +1,10 @@
-from rest_framework import generics
-from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, generics
 from rest_framework.permissions import IsAuthenticated
+from .filters import ReviewFilter
+from .permissions import ReviewPermission
 from .serializers import ReviewSerializer
 from ..models import Review
-from.permissions import ReviewPermission
-from .filters import ReviewFilter
 
 class ReviewListCreateView(generics.ListCreateAPIView):
     """
@@ -46,7 +45,7 @@ class ReviewUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     - GET: Retrieve the review details.
     - PATCH/PUT: Update the review (only allowed for the creator).
     - DELETE: Delete the review (only allowed for the creator).
-    
+
     """
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer

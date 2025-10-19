@@ -15,7 +15,6 @@ class ProfileSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(source='user.email', read_only=True)
     type = serializers.CharField(source='user.type', read_only=True)
     file = serializers.ImageField(required=False, allow_null=True)
-    # file = serializers.CharField()
 
     class Meta:
         model = Profile
@@ -46,7 +45,7 @@ class BusinessProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     type = serializers.CharField(source='user.type', read_only=True)
     file = serializers.ImageField(required=False, allow_null=True)
-    # file = serializers.CharField()
+   
 
     class Meta:
         model = Profile
@@ -77,8 +76,6 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     type = serializers.CharField(source='user.type', read_only=True)
     file = serializers.ImageField(required=False, allow_null=True)
-    # file = serializers.CharField()
-  
 
     class Meta:
         model = Profile
