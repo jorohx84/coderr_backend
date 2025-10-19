@@ -1,14 +1,27 @@
 from rest_framework import permissions
 
+class OfferPermission(permissions.BasePermission):
+    """
+    Custom permission class for Offer-related actions.
 
-class IsBusinessUser(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
+    Rules:
+    - POST: Only users with type 'business' are allowed to create offers.
+    - PATCH, DELETE: Only the creator (obj.user) of the offer can modify or delete it.
+    - Other methods (e.g., GET): Allowed for all authenticated users.
+
+    Notes:
+    - Requires authentication to be handled separately, e.g., via IsAuthenticated.
+    - Assumes that `request.user` has a `type` attribute (e.g., 'business', 'customer').
+    
+    """
+    def has_permission(self, request, view):
         if request.method == 'POST':
             return request.user.type == 'business'
         return True
 
-class IsCreator(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if request.method in ['DELETE', 'PATCH']:
-            return obj.user == request.user.id
+        if request.method in ['PATCH', 'DELETE']:
+            return obj.user == request.user
         return True
+
+    

@@ -5,12 +5,29 @@ from profile_app.models import Profile
 
 
 class OfferDetailSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the OfferDetail model.
+    Used for serializing and deserializing OfferDetail instances in API responses and requests.
+
+    """
     class Meta:
         model = OfferDetail
         fields = ['id', 'title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type']
 
 
 class OfferSerializer(serializers.ModelSerializer):
+    """
+
+    Serializer for the Offer model including nested OfferDetail objects.
+
+    Validation:
+    - Ensures that exactly 3 detail objects are provided.
+
+    Creation:
+    - Creates an Offer instance linked to the currently authenticated user.
+    - Creates associated OfferDetail instances after the Offer is created.
+
+    """
     details = OfferDetailSerializer(many=True)
 
     class Meta:
@@ -32,6 +49,14 @@ class OfferSerializer(serializers.ModelSerializer):
 
 
 class UserSummarySerializer(serializers.ModelSerializer):
+    """
+    Serializer to represent a summary of user information from the related Profile model.
+
+    Note:
+    - All fields are read-only and retrieved via the Profile relationship.
+    - The serializer is based on the Profile model.
+
+    """
     first_name = serializers.CharField(source="profile.first_name", read_only=True)
     last_name = serializers.CharField(source="profile.last_name", read_only=True)
     username = serializers.CharField(source="profile.username", read_only=True)
@@ -43,6 +68,14 @@ class UserSummarySerializer(serializers.ModelSerializer):
 
 
 class OfferDetailURLSerializer(serializers.ModelSerializer):
+    """
+
+    Serializer for OfferDetail model that provides a URL to the detail instance.
+
+    Note:
+    - The URL is constructed manually using the object's ID.
+
+    """
     url = serializers.SerializerMethodField()
 
     class Meta:
@@ -53,6 +86,14 @@ class OfferDetailURLSerializer(serializers.ModelSerializer):
         return f"/offerdetails/{obj.id}/"
 
 class OfferListSerializer(serializers.ModelSerializer):
+    """
+    Serializer for listing Offer instances with summarized details and user information.
+
+    Methods:
+    - get_min_price(obj): Calculates and returns the lowest price from the related OfferDetails.
+    - get_min_delivery_time(obj): Calculates and returns the shortest delivery time from the related OfferDetails.
+
+    """
     details = OfferDetailURLSerializer(many=True, read_only=True)
     min_price = serializers.SerializerMethodField()
     min_delivery_time = serializers.SerializerMethodField()
@@ -78,6 +119,16 @@ class OfferListSerializer(serializers.ModelSerializer):
 
 
 class SingleOfferSerializer(serializers.ModelSerializer):
+    """
+
+    Serializer for a single Offer instance with summarized OfferDetail URLs
+    and computed fields for minimum price and minimum delivery time.
+
+    Methods:
+    - get_min_price(obj): Returns the lowest price from the related OfferDetails.
+    - get_min_delivery_time(obj): Returns the shortest delivery time from the related OfferDetails.
+
+    """
     details = OfferDetailURLSerializer(many=True, read_only=True)
     min_price = serializers.SerializerMethodField()
     min_delivery_time = serializers.SerializerMethodField()
@@ -106,13 +157,39 @@ class SingleOfferSerializer(serializers.ModelSerializer):
 
 
 class OfferDetailUpdateSerializer(serializers.ModelSerializer):
+    """
+
+    Serializer for updating OfferDetail instances.
+
+    Fields:
+    - All fields of the OfferDetail model except 'offer' are included.
+      The 'offer' field is excluded to prevent modification of the related Offer
+      through this serializer.
+
+    Use case:
+    - This serializer is intended for updating existing OfferDetail entries
+      without changing their associated Offer.
+
+    """
     class Meta:
         model = OfferDetail
-        exclude = ['offer']  # Da die Offer-ID automatisch vom Parent kommt
+        exclude = ['offer'] 
 
 
 
 class OfferUpdateSerializer(serializers.ModelSerializer):
+    """
+
+    Serializer for updating an existing Offer along with its associated OfferDetails.
+
+    Behavior:
+    - Updates all provided fields on the Offer instance.
+    - For 'details', matches existing OfferDetail instances by 'offer_type':
+        - If a matching OfferDetail exists, it will be updated with the provided data.
+        - If no matching OfferDetail exists, a new OfferDetail will be created.
+    - Details without 'offer_type' are skipped (can be changed to raise validation error).
+
+    """
     details = OfferDetailUpdateSerializer(many=True, required=False)
 
     class Meta:
@@ -120,13 +197,13 @@ class OfferUpdateSerializer(serializers.ModelSerializer):
         fields = ['title', 'image', 'description', 'details']
 
     def update(self, instance, validated_data):
-        # 1. Normale Felder aktualisieren
+       
         for attr, value in validated_data.items():
             if attr != 'details':
                 setattr(instance, attr, value)
         instance.save()
 
-        # 2. Details aktualisieren
+      
         details_data = validated_data.get('details')
         if details_data is not None:
             existing_details = {d.offer_type: d for d in instance.details.all()}
@@ -134,21 +211,33 @@ class OfferUpdateSerializer(serializers.ModelSerializer):
             for detail_data in details_data:
                 offer_type = detail_data.get('offer_type')
                 if not offer_type:
-                    continue  # oder raise serializers.ValidationError("offer_type erforderlich")
+                    continue 
 
                 detail_instance = existing_details.get(offer_type)
                 if detail_instance:
-                    # update
+                 
                     for attr, value in detail_data.items():
                         setattr(detail_instance, attr, value)
                     detail_instance.save()
                 else:
-                    # create
+                   
                     OfferDetail.objects.create(offer=instance, **detail_data)
 
         return instance
 
+
 class FeatureSerializer(serializers.StringRelatedField):
+    """
+
+    Serializer for the Feature model using its string representation.
+
+    Overrides `to_internal_value` to allow creating or retrieving
+    a Feature instance by its 'name' field when deserializing input data.
+
+    This enables accepting a feature name as input and automatically
+    getting or creating the corresponding Feature object.
+    
+    """
     def to_internal_value(self, data):
         feature, _ = Feature.objects.get_or_create(name=data)
         return feature

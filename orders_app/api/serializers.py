@@ -3,6 +3,10 @@ from ..models import Order
 from offers_app.api.serializers import FeatureSerializer
 
 class OrderSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Order model.
+
+    """
     features = FeatureSerializer(many=True)
  
     class Meta:

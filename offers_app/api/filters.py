@@ -3,6 +3,16 @@ from django.db.models import Min
 from ..models import Offer
 
 class OfferFilter(django_filters.FilterSet):
+    """
+    FilterSet for filtering Offer objects based on creator, price, and delivery time.
+
+    Supported filters:
+    - creator_id: Filters offers by the user ID of the creator (`user__id`).
+    - min_price: Filters offers where the minimum price across all related details is greater than or equal to the given value.
+    - max_delivery_time: Filters offers where the minimum delivery time across all related details is less than or equal to the given value.
+    
+    """
+
     creator_id = django_filters.NumberFilter(field_name='user__id')
     min_price = django_filters.NumberFilter(method='filter_min_price')
     max_delivery_time = django_filters.NumberFilter(method='filter_max_delivery_time')

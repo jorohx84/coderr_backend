@@ -11,6 +11,30 @@ from auth_app.models import CustomUser
 
 
 class OrderCreateView(APIView):
+    """
+
+    API view to handle listing, creating, updating, and deleting orders.
+
+    Methods:
+    - GET: List all existing orders.
+    - POST: Create a new order linked to a specific offer detail.
+        Requires 'offer_detail_id' in the request data.
+        Sets customer as the authenticated user and assigns related business user from the offer.
+        Automatically assigns features from the offer detail.
+    - PATCH: Partially update an existing order by its ID.
+    - DELETE: Delete an existing order by its ID.
+
+    Permissions:
+    - User must be authenticated.
+    - Additional permissions handled by OrderPermission class:
+        - POST allowed only for users of type 'customer'.
+        - PATCH allowed only for users of type 'business'.
+        - DELETE allowed only for admin users (is_staff).
+
+    Note:
+    - PATCH and DELETE require 'pk' parameter in the URL for order identification.
+
+    """
     permission_classes = [IsAuthenticated, OrderPermission]
 
     def get(self, request):
@@ -36,15 +60,14 @@ class OrderCreateView(APIView):
             offer_detail=offer_detail,
         )
 
-        # ✅ Wichtig: JSON-Features in echte Feature-Modelle umwandeln
-        feature_names = offer_detail.features  # z.B. ["Logo Design", "Flyer"]
+        feature_names = offer_detail.features 
         feature_objects = []
 
         for name in feature_names:
             feature_obj, _ = Feature.objects.get_or_create(name=name)
             feature_objects.append(feature_obj)
 
-    # ✅ ManyToMany-Feld korrekt befüllen
+
         order.features.set(feature_objects)
 
         serializer = OrderSerializer(order)
@@ -77,6 +100,22 @@ class OrderCreateView(APIView):
        
 
 class BusinessOrderCountView(APIView):
+    """
+
+    API endpoint to retrieve the count of 'in progress' orders for a specific business user.
+
+    URL Parameter:
+    - business_user_id (int): The ID of the business user.
+
+    Permissions:
+    - Requires authenticated user.
+
+    Behavior:
+    - Validates that the business user exists and has type 'business'.
+    - Returns the count of orders assigned to the business user with status 'in progress'.
+    - If the business user does not exist or is not of type 'business', returns 404 error.
+
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_user_id):
@@ -90,6 +129,22 @@ class BusinessOrderCountView(APIView):
     
 
 class CompletedOrderCountView(APIView):
+    """
+
+    API endpoint to retrieve the count of 'completed' orders for a specific business user.
+
+    URL Parameter:
+    - business_user_id (int): The ID of the business user.
+
+    Permissions:
+    - Requires authenticated user.
+
+    Behavior:
+    - Validates that the business user exists and has type 'business'.
+    - Returns the count of orders assigned to the business user with status 'completed'.
+    - If the business user does not exist or is not of type 'business', returns 404 error.
+    
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_user_id):

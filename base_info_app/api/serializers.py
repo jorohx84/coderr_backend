@@ -6,6 +6,21 @@ from profile_app.models import Profile
 from offers_app.models import Offer
 
 class BaseInfoSerializer(serializers.Serializer):
+    """
+    Serializer for aggregated platform statistics.
+
+    Provides a summary of key platform-wide metrics:
+
+    Fields:
+    - review_count: Total number of submitted reviews.
+    - average_rating: Average rating of all reviews (rounded to one decimal place).
+    - business_profile_count: Number of user profiles with type='business'.
+    - offer_count: Total number of offers created on the platform.
+
+    Notes:
+    - This serializer does not rely on a single model instance.
+    - Intended for use in dashboard or overview endpoints (e.g. /api/base-info/).
+    """
     review_count = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
     business_profile_count = serializers.SerializerMethodField()
