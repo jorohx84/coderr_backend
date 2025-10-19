@@ -1,7 +1,8 @@
 Project Description
 
-Coderr is the backend for a freelancer developer platform. Your frontend teammates have already built the frontend interface. Your task is to develop the backend with all necessary functionalities to power the platform and connect frontend and backend seamlessly.
-This backend handles user management, offers, orders, reviews, and more, providing a robust API for the frontend to consume.
+Coderr is a comprehensive freelancer platform designed specifically for developers. The platform connects service providers (developers) with clients looking for various development services. Developers can create and publish offers with different pricing models—Basic, Standard, and Premium—tailored to meet diverse client needs.
+Clients can browse through these offers, place orders, and ultimately benefit from a transparent and flexible marketplace. Additionally, the platform allows clients to rate and review the services they receive, ensuring quality feedback and fostering trust between developers and clients.
+Coderr aims to streamline the collaboration between freelancers and clients by providing all essential backend functionalities to support a seamless user experience.
 
 Getting Started
 
