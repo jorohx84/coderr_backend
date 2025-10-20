@@ -7,7 +7,7 @@ class Profile(models.Model):
     username = models.CharField(max_length=255, blank=True, default="")
     first_name = models.CharField(max_length=255, blank=True, default="")
     last_name = models.CharField(max_length=255, blank=True, default="")
-    file = models.CharField(max_length=255, blank=True, default="")
+    file = models.CharField(max_length=255, blank=True, null=True, default="")
     location = models.CharField(max_length=255, blank=True, default="")
     tel = models.CharField(max_length=255, blank=True, default="")
     description = models.TextField(max_length=50, blank=True, default="")

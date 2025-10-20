@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from ..models import Profile
-
+from auth_app.models import CustomUser
 class ProfileSerializer(serializers.ModelSerializer):
 
     """
@@ -12,10 +12,9 @@ class ProfileSerializer(serializers.ModelSerializer):
     """
 
     username = serializers.CharField(source='user.username', read_only=True)
-    email = serializers.EmailField(source='user.email', read_only=True)
     type = serializers.CharField(source='user.type', read_only=True)
     file = serializers.ImageField(required=False, allow_null=True)
-
+    
     class Meta:
         model = Profile
         fields = [
@@ -32,6 +31,23 @@ class ProfileSerializer(serializers.ModelSerializer):
             'working_hours',
             'created_at',
         ]
+
+    def update(self, instance, validated_data):
+        email = validated_data.pop('email')
+        print(email)
+        if email:
+            user = instance.user
+            if user.email != email:
+                user.email = email
+                user.save()
+        instance.email = email
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+            instance.save()
+        return instance
+
+
 
 class BusinessProfileSerializer(serializers.ModelSerializer):
     """
