@@ -52,7 +52,7 @@ class OrderCreateView(APIView):
         order = Order.objects.create(
             customer_user=request.user,
             business_user=offer_detail.offer.user,
-            title=offer_detail.title,
+            title=offer_detail.offer.title,
             revisions=offer_detail.revisions,
             delivery_time_in_days=offer_detail.delivery_time_in_days,
             price=offer_detail.price,

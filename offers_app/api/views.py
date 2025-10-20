@@ -1,7 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, generics, status
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS, AllowAny
 from rest_framework.response import Response
 from ..models import Offer, OfferDetail
 from .filters import OfferFilter
@@ -38,7 +38,7 @@ class OfferListCreateAPIView(generics.ListCreateAPIView):
 
     """
     queryset = Offer.objects.all().prefetch_related('details', 'user')
-    permission_classes = [IsAuthenticated, OfferPermission]
+    permission_classes = [OfferPermission]
 
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
     filterset_class = OfferFilter
@@ -68,7 +68,12 @@ class OfferRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
 
     """
     queryset = Offer.objects.all()
-    permission_classes = [IsAuthenticated, OfferPermission]
+    permission_classes = [OfferPermission]
+
+    def get_permissions(self):
+        if self.request.method in SAFE_METHODS:
+            return [AllowAny()]
+        return [OfferPermission()]
 
     def get_serializer_class(self):
         if self.request.method in ['PATCH', 'PUT']:
