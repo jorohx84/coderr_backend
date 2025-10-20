@@ -17,7 +17,11 @@ class OfferPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method == 'POST':
             return request.user.type == 'business'
-        return True
+        
+        if request.method in ['GET', 'HEAD', 'OPTIONS']:
+            return True
+        
+        return False
 
     def has_object_permission(self, request, view, obj):
         if request.method in ['PATCH', 'DELETE']:

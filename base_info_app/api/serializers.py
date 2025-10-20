@@ -27,7 +27,7 @@ class BaseInfoSerializer(serializers.Serializer):
     offer_count = serializers.SerializerMethodField()
 
     def get_review_count(self, obj):
-        count = Review.objects.count()
+        count = Review.objects.count() or 0
         return count
     
     def get_average_rating(self, obj):
@@ -37,10 +37,10 @@ class BaseInfoSerializer(serializers.Serializer):
         return round(avg, 1)
     
     def get_business_profile_count(self, obj):
-        count = Profile.objects.filter(type='business').count()
+        count = Profile.objects.filter(type='business').count() or 0
 
         return count 
 
     def get_offer_count(self, obj):
-        count =Offer.objects.count()
+        count =Offer.objects.count() or 0
         return count
