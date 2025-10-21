@@ -36,7 +36,7 @@ class OfferSerializer(serializers.ModelSerializer):
 
     def validate_details(self, value):
         if len(value) != 3:
-            raise serializers.ValidationError("Ein Angebot muss genau 3 Details enthalten.")
+            raise serializers.ValidationError("an offer must contain exactly 3 details.")
         return value
 
     def create(self, validated_data):
@@ -195,6 +195,13 @@ class OfferUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Offer
         fields = ['id', 'title', 'image', 'description', 'details']
+
+    def validate_details(self, value):
+        for detail in value:
+            if 'offer_type' not in detail:
+                raise serializers.ValidationError("each single detail must include an 'offer_type' field.")
+            return value
+
 
     def update(self, instance, validated_data):
        

@@ -1,22 +1,34 @@
 from rest_framework import permissions
-
-class OfferPermission(permissions.BasePermission):
+class PublicOfferListPermission(permissions.BasePermission):
     """
-    - GET, HEAD, OPTIONS: für alle erlaubt (auch nicht-authentifizierte Nutzer)
-    - POST: nur authentifizierte Nutzer mit `type='business'`
-    - PATCH, DELETE: nur Besitzer des Objekts (authentifiziert)
+    - Erlaubt GET (Liste) für alle, auch nicht-authentifizierte Nutzer.
+    - POST ist nur für authentifizierte Nutzer mit user.type == 'business' erlaubt.
     """
 
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
-            return True
+            return True  
 
         if request.method == 'POST':
-            return request.user.is_authenticated and request.user.type == 'business'
+            return (
+                request.user.is_authenticated and 
+                getattr(request.user, 'type', None) == 'business'
+            )
 
+        return request.user.is_authenticated
+    
+
+class AuthenticatedOfferDetailPermission(permissions.BasePermission):
+    """
+    Nur authentifizierte Nutzer dürfen:
+    - GET (Details lesen)
+    - PATCH, DELETE (nur, wenn Besitzer)
+    """
+
+    def has_permission(self, request, view):
         return request.user.is_authenticated  
 
     def has_object_permission(self, request, view, obj):
         if request.method in ['PATCH', 'DELETE']:
-            return obj.user == request.user
-        return True
+            return obj.user == request.user  
+        return True  
