@@ -26,3 +26,5 @@ class OrderSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
+class OrderCreateInputSerializer(serializers.Serializer):
+    offer_detail_id = serializers.IntegerField()

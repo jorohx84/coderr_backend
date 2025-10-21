@@ -8,54 +8,36 @@ from auth_app.models import CustomUser
 from offers_app.models import Feature, OfferDetail
 from orders_app.models import Order
 from .permissions import OrderPermission
-from .serializers import OrderSerializer
+from .serializers import OrderSerializer, OrderCreateInputSerializer
 
 
 class OrderListCreateView(generics.ListCreateAPIView):
-    """
-    API view to list all orders and create a new order.
-
-    GET:
-        - Returns a list of all orders.
-        - Requires the user to be authenticated.
-
-    POST:
-        - Creates a new order linked to a specific OfferDetail.
-        - Requires 'offer_detail_id' in the request data.
-        - Only users with user.type == 'customer' are permitted to create orders.
-        - Automatically assigns features from the referenced OfferDetail.
-        - Validates that 'offer_detail_id' is an integer and corresponds to an existing OfferDetail.
-    
-    Permissions:
-        - User must be authenticated.
-        - Permission class OrderPermission enforces user type restrictions.
-    """
     queryset = Order.objects.all()
-    serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated, OrderPermission]
 
-    def perform_create(self, serializer):
-        offer_detail_id = self.request.data.get("offer_detail_id")
-        if not offer_detail_id:
-            raise ValidationError({"offer_detail_id": "This field is required."})
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return OrderCreateInputSerializer  
+        return OrderSerializer 
 
-        try:
-            offer_detail_id = int(offer_detail_id)
-        except (ValueError, TypeError):
-            raise ValidationError({"offer_detail_id": "Must be an integer."})
+    def create(self, request, *args, **kwargs):
+        input_serializer = self.get_serializer(data=request.data)
+        input_serializer.is_valid(raise_exception=True)
 
-        offer_detail = OfferDetail.objects.select_related('offer').filter(id=offer_detail_id).first()
-        if not offer_detail:
-            raise ValidationError({"offer_detail_id": "OfferDetail with this ID does not exist."})
+        offer_detail_id = input_serializer.validated_data['offer_detail_id']
 
-        feature_names = offer_detail.features
+        offer_detail = get_object_or_404(
+            OfferDetail.objects.select_related("offer"),
+            id=offer_detail_id
+        )
+
         feature_objects = []
-        for name in feature_names:
-            feature_obj, _ = Feature.objects.get_or_create(name=name)
-            feature_objects.append(feature_obj)
+        for name in offer_detail.features:
+            feature, _ = Feature.objects.get_or_create(name=name)
+            feature_objects.append(feature)
 
-        order = serializer.save(
-            customer_user=self.request.user,
+        order = Order.objects.create(
+            customer_user=request.user,
             business_user=offer_detail.offer.user,
             title=offer_detail.title,
             revisions=offer_detail.revisions,
@@ -63,8 +45,13 @@ class OrderListCreateView(generics.ListCreateAPIView):
             price=offer_detail.price,
             offer_type=offer_detail.offer_type,
             offer_detail=offer_detail,
+            status="in_progress",
         )
-        order.features.set(feature_objects)      
+        order.features.set(feature_objects)
+
+        output_serializer = OrderSerializer(order)
+        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+    
 
 
 class OrderRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
