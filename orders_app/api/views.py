@@ -47,10 +47,14 @@ class OrderListCreateView(generics.ListCreateAPIView):
 
         offer_detail_id = input_serializer.validated_data['offer_detail_id']
 
-        offer_detail = get_object_or_404(
-            OfferDetail.objects.select_related("offer"),
-            id=offer_detail_id
-        )
+        try: offer_detail_id = int(offer_detail_id) 
+        except (ValueError, TypeError): 
+            raise ValidationError({"offer_detail_id": "Must be an integer."})
+
+        offer_detail = OfferDetail.objects.select_related('offer').filter(id=offer_detail_id).first() 
+        if not offer_detail: 
+            raise ValidationError({"offer_detail_id": "OfferDetail with this ID does not exist."})
+        
 
         feature_objects = []
         for name in offer_detail.features:
