@@ -12,6 +12,27 @@ from .serializers import OrderSerializer, OrderCreateInputSerializer
 
 
 class OrderListCreateView(generics.ListCreateAPIView):
+    """
+    API endpoint to list all orders (GET) and create a new order (POST).
+
+    GET:
+        - Returns a list of all orders.
+        - Requires the user to be authenticated.
+        - Uses OrderSerializer for response data.
+
+    POST:
+        - Creates a new order based on a given OfferDetail.
+        - Request body must include: {"offer_detail_id": <int>}
+        - Only users with user.type == "customer" are allowed to create orders.
+        - Automatically copies relevant fields from the OfferDetail:
+            - title, revisions, delivery_time_in_days, price, offer_type
+        - Features from the OfferDetail are added to the order (created if necessary).
+        - Returns the full created order using OrderSerializer.
+
+    Permissions:
+        - All actions require authentication (IsAuthenticated).
+        - OrderPermission ensures only 'customer' users can create orders.
+    """
     queryset = Order.objects.all()
     permission_classes = [IsAuthenticated, OrderPermission]
 

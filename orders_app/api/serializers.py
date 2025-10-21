@@ -4,7 +4,7 @@ from offers_app.api.serializers import FeatureSerializer
 
 class OrderSerializer(serializers.ModelSerializer):
     """
-    Serializer for the Order model.
+    Serializer for the OrderList.
 
     """
     features = FeatureSerializer(many=True)
@@ -27,4 +27,8 @@ class OrderSerializer(serializers.ModelSerializer):
         ]
 
 class OrderCreateInputSerializer(serializers.Serializer):
+    """
+    Serializer for the Order Patch.
+
+    """
     offer_detail_id = serializers.IntegerField()
