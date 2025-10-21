@@ -21,3 +21,5 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     features = models.ManyToManyField(Feature, related_name='orders')
 
+    def __str__(self):
+        return f"{self.created_at.date()} - {self.customer_user.username} ordered '{self.title}'"

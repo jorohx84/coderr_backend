@@ -8,3 +8,6 @@ class Review(models.Model):
     description = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.created_at.date()} reviewed by {self.reviewer.username} "
