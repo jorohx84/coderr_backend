@@ -23,8 +23,8 @@ class ReviewListCreateView(generics.ListCreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated, ReviewPermission]
-    filter_backends = [DjangoFilterBackend ,filters.OrderingFilter]
-    filters_class = ReviewFilter
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class= ReviewFilter
     ordering_fields = ['updated_at', 'rating']
 
     def perform_create(self, serializer):
