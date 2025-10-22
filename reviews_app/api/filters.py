@@ -13,9 +13,9 @@ class ReviewFilter(django_filters.FilterSet):
     - Can be used in Django REST Framework views to filter queryset by these fields.
     
     """
-    business_user = django_filters.NumberFilter(field_name='business_user')
-    reviewer = django_filters.NumberFilter(field_name='reviewer')
+    business_user_id = django_filters.NumberFilter(field_name='business_user')
+    reviewer_id = django_filters.NumberFilter(field_name='reviewer')
 
     class Meta:
         model = Review
-        fields = ['business_user', 'reviewer']
+        fields = ['business_user_id', 'reviewer_id']
