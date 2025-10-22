@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -33,8 +33,15 @@ class OrderListCreateView(generics.ListCreateAPIView):
         - All actions require authentication (IsAuthenticated).
         - OrderPermission ensures only 'customer' users can create orders.
     """
-    queryset = Order.objects.all()
+    # queryset = Order.objects.all()
     permission_classes = [IsAuthenticated, OrderPermission]
+
+
+    def get_queryset(self):
+        user = self.request.user
+        return Order.objects.filter(Q(customer_user=user) | Q(business_user=user))
+
+      
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
